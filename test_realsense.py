@@ -80,7 +80,7 @@ class PersonSegmentationNode(Node):
     # depth_callback 및 imageDepthInfoCallback 코드는 그대로 유지
     def depth_callback(self, msg):
         """ 깊이 이미지를 통해 대상 픽셀의 깊이 정보 획득 및 3D 상대 좌표 계산 """
-        print("***********************")
+        
         if self.target_pixel is None or self.intrinsics is None:
             return
 
@@ -93,12 +93,12 @@ class PersonSegmentationNode(Node):
             return
 
         self.target_depth = depth
-        print("DEPTH--------------", self.target_depth)
+        
         # 카메라 내부 파라미터
-        fx = self.intrinsics.fx
-        fy = self.intrinsics.fy
-        ppx = self.intrinsics.ppx
-        ppy = self.intrinsics.ppy
+        fx = self.intrinsics['fx']
+        fy = self.intrinsics['fy']
+        ppx = self.intrinsics['ppx']
+        ppy = self.intrinsics['ppy']
 
         # YOLO로 얻은 픽셀 좌표를 3D 공간 좌표로 변환 (카메라 옵티컬 좌표계 기준)
         u, v = self.target_pixel
