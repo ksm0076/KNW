@@ -74,7 +74,7 @@ class RobotController:
         print("status_callback :", msg)
         if msg.data == "lost":
             current_time = time.time()
-            if not self.searching and current_time - self.last_detection_time > 3:
+            if current_time - self.last_detection_time > 3:
                 print("Human lost. Starting to rotate.")
                 self.searching = True
                 self.rotate_to_find_person()
@@ -85,12 +85,9 @@ class RobotController:
         print("Rotating to find person...")
         cmd_vel_msg = Twist()
         cmd_vel_msg.angular.z = 0.3 * self.rotation_direction  # Adjust rotation speed as needed
-        start_time = time.time()
-
-        while self.searching and time.time() - start_time < 20:  # Rotate for a maximum of 20 seconds
-            self.cmdvel_pub.publish(cmd_vel_msg)
-            time.sleep(0.1)
-
+                
+        self.cmdvel_pub.publish(cmd_vel_msg)
+        
         if self.searching:
             print("Human not found. Stopping rotation and alerting user.")
             self.stop_robot()
