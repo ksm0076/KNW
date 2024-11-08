@@ -84,10 +84,10 @@ class RobotController:
     def rotate_to_find_person(self):
         print("Rotating to find person...")
         cmd_vel_msg = Twist()
-        cmd_vel_msg.angular.z = 0.3 * self.rotation_direction  # Adjust rotation speed as needed
+        cmd_vel_msg.angular.z = 1.0 * self.rotation_direction  # Adjust rotation speed as needed
                 
         self.cmdvel_pub.publish(cmd_vel_msg)
-        
+        time.sleep(0.3) 
         if self.searching:
             print("Human not found. Stopping rotation and alerting user.")
             self.stop_robot()
