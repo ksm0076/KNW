@@ -85,8 +85,11 @@ class RobotController:
 
     def rotate_to_find_person(self):
         cmd_vel_msg = Twist()
-        cmd_vel_msg.angular.z = 0.5  # 회전 속도
-        self.cmdvel_pub.publish(cmd_vel_msg)
+        cmd_vel_msg.angular.z = 5.0  # 회전 속도
+        for _ in range(6):
+            
+            self.cmdvel_pub.publish(cmd_vel_msg)
+            time.sleep(1)
 
     def stop_robot(self):
         cmd_vel_msg = Twist()
