@@ -71,6 +71,7 @@ class RobotController:
                 self.stop_robot()
 
         else:
+            print("No Person")
             self.check_for_person_loss()
 
     def check_for_person_loss(self):
