@@ -115,6 +115,7 @@ class PersonSegmentationNode(Node):
         person_position.w = 1.0         # 회전 정보는 필요 없으므로 기본값으로 설정
 
         
+        # publish coordinate
         if self.human:
             self.position_pub.publish(person_position)
             print("Calculated 3D Position in ROS frame:", person_position)
