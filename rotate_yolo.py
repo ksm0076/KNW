@@ -80,3 +80,78 @@ class PersonSegmentationNode(Node):
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
 
     # depth_callback 및 imageDepthInfoCallback 코드는 그대로 유지
+    def depth_callback(self, msg):
+        """ 깊이 이미지를 통해 대상 픽셀의 깊이 정보 획득 및 3D 상대 좌표 계산 """
+        print("***********************")
+        if self.target_pixel is None or self.intrinsics is None:
+            return
+
+        # 깊이 이미지를 OpenCV 형식으로 변환
+        cv_depth_image = self.bridge.imgmsg_to_cv2(msg, msg.encoding)
+        depth = cv_depth_image[self.target_pixel[1], self.target_pixel[0]]
+
+        if depth == 0:
+            self.target_depth = None
+            return
+
+        self.target_depth = depth
+        print("DEPTH--------------", self.target_depth)
+        # 카메라 내부 파라미터
+        fx = self.intrinsics.fx
+        fy = self.intrinsics.fy
+        ppx = self.intrinsics.ppx
+        ppy = self.intrinsics.ppy
+
+        # YOLO로 얻은 픽셀 좌표를 3D 공간 좌표로 변환 (카메라 옵티컬 좌표계 기준)
+        u, v = self.target_pixel
+        x = float((u - ppx) * depth / fx)
+        y = float((v - ppy) * depth / fy)
+        z = float(depth)
+
+        # ROS 2 좌표계로 변환
+        person_position = Quaternion()
+        person_position.x = z           # 카메라 Z -> ROS X
+        person_position.y = -x          # 카메라 X -> ROS -Y
+        person_position.z = -y          # 카메라 Y -> ROS -Z
+        person_position.w = 1.0         # 회전 정보는 필요 없으므로 기본값으로 설정
+
+        
+        if self.human:
+            self.position_pub.publish(person_position)
+            print("Calculated 3D Position in ROS frame:", person_position)
+            self.get_logger().info(f"Person position published: x={z:.2f}, y={-x:.2f}, z={-y:.2f}")
+
+    def imageDepthInfoCallback(self, cameraInfo):
+        try:
+            if self.intrinsics:
+                return
+            self.intrinsics = rs2.intrinsics()
+            self.intrinsics.width = cameraInfo.width
+            self.intrinsics.height = cameraInfo.height
+            self.intrinsics.ppx = cameraInfo.k[2]
+            self.intrinsics.ppy = cameraInfo.k[5]
+            self.intrinsics.fx = cameraInfo.k[0]
+            self.intrinsics.fy = cameraInfo.k[4]
+            if cameraInfo.distortion_model == 'plumb_bob':
+                self.intrinsics.model = rs2.distortion.brown_conrady
+            elif cameraInfo.distortion_model == 'equidistant':
+                self.intrinsics.model = rs2.distortion.kannala_brandt4
+            self.intrinsics.coeffs = [i for i in cameraInfo.d[:5]]  # 5개의 요소로 제한
+        except CvBridgeError as e:
+            print(e)
+            return
+
+def main(args=None):
+    parser = argparse.ArgumentParser(description='Person Segmentation Node')
+    parser.add_argument('--image_topic', type=str, default='/camera/color/image_raw',
+                        help='The image topic to subscribe to')
+    args = parser.parse_args()
+
+    rclpy.init()
+    person_segmentation_node = PersonSegmentationNode(args.image_topic)
+    rclpy.spin(person_segmentation_node)
+    person_segmentation_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
