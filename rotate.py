@@ -6,13 +6,12 @@ from rclpy.node import Node
 from tf_transformations import euler_from_quaternion
 import math
 from geometry_msgs.msg import Quaternion
-from std_msgs.msg import String
 import time
 
 class RobotController:
     def __init__(self):
         rclpy.init()
-        
+
         self.node = rclpy.create_node('robot_control_node')
 
         self.cmdvel_pub = self.node.create_publisher(Twist, 'cmd_vel', 10)
@@ -24,14 +23,14 @@ class RobotController:
         )
 
         self.current_pose = Pose()
-        self.pallet_axis = None  # 사람이 감지되었는지 여부
+        self.pallet_axis = None  # 사람 감지 여부 확인을 위해 None으로 초기화
         self.last_detection_time = time.time()  # 마지막 감지 시간
         self.detection_timeout = 3  # 사람이 사라졌다고 판단하는 시간 (초)
 
-        self.kp_linear = 0.5  # 직선 PID 제어기 상수 
+        self.kp_linear = 0.2  # 직선 PID 제어기 상수 
         self.kp_angular = 1  # 각도 PID 제어기 상수
 
-        self.max_linear_speed = 1.0  # 최대 직선 속도 (m/s)
+        self.max_linear_speed = 0.75  # 최대 직선 속도 (m/s)
         self.max_angular_speed = 2.0  # 최대 각도 속도 (rad/s)
         
         print("Robot Controller Initialized")
@@ -69,15 +68,15 @@ class RobotController:
                 self.cmdvel_pub.publish(cmd_vel_msg)
                 print("Speed:", linear_speed, angular_speed)
             else:
-                print("STOP")
                 self.stop_robot()
+
         else:
             self.check_for_person_loss()
 
     def check_for_person_loss(self):
         current_time = time.time()
         if current_time - self.last_detection_time > self.detection_timeout:
-            print("Person lost, rotating...")
+            print("Person lost, rotating to search...")
             self.rotate_to_find_person()
 
     def rotate_to_find_person(self):
@@ -90,13 +89,16 @@ class RobotController:
         cmd_vel_msg.linear.x = 0.0
         cmd_vel_msg.angular.z = 0.0
         self.cmdvel_pub.publish(cmd_vel_msg)
+        print("STOP")
 
     def calculate_distance(self):
+        # 현재 위치와 목표 위치 간 거리 계산
         dx = self.pallet_axis.x
         dy = self.pallet_axis.y
         return math.sqrt(dx**2 + dy**2) * 0.001
 
     def calculate_yaw_error(self):
+        # 현재 각도와 목표 각도 간 오차 계산
         _, _, current_yaw = euler_from_quaternion([
             self.current_pose.orientation.x,
             self.current_pose.orientation.y,
@@ -104,6 +106,7 @@ class RobotController:
             self.current_pose.orientation.w
         ])
         desired_yaw = math.atan2(self.pallet_axis.x, self.pallet_axis.y)
+        desired_yaw -= 1.6
         print("Desired yaw:", desired_yaw, "Current yaw:", current_yaw)
         return current_yaw - desired_yaw
 
@@ -116,3 +119,4 @@ if __name__ == '__main__':
         rclpy.spin(controller.node)
     except KeyboardInterrupt:
         pass
+
