@@ -124,12 +124,14 @@ class PersonSegmentationNode(Node):
         try:
             if self.intrinsics:
                 return
-            self.intrinsics.width = cameraInfo.width
-            self.intrinsics.height = cameraInfo.height
-            self.intrinsics.ppx = cameraInfo.k[2]
-            self.intrinsics.ppy = cameraInfo.k[5]
-            self.intrinsics.fx = cameraInfo.k[0]
-            self.intrinsics.fy = cameraInfo.k[4]
+            self.intrinsics = {
+                'fx': cameraInfo.k[0],  # fx
+                'fy': cameraInfo.k[4],  # fy
+                'ppx': cameraInfo.k[2], # cx
+                'ppy': cameraInfo.k[5], # cy
+                'width' : cameraInfo.width,
+                'height' : cameraInfo.height,
+            }
         except CvBridgeError as e:
             print(e)
             return
