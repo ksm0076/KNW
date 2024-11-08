@@ -34,12 +34,13 @@ class RobotController:
         self.kp_linear = 0.5  # 직선 PID 제어기 상수 
         self.kp_angular = 1  # 각도 PID 제어기 상수
 
-        self.max_linear_speed = 0.5  # 최대 직선 속도 (m/s)
+        self.max_linear_speed = 1.0  # 최대 직선 속도 (m/s)
         self.max_angular_speed = 2.0  # 최대 각도 속도 (rad/s)
         
         self.target_relative_pose = Pose()
         self.target_relative_pose.position.x = 0.5  # 목표 상대 위치 x 좌표
         self.target_relative_pose.position.y = 0.0  # 목표 상대 위치 y 좌표
+        
         print("bbbb")
 
     def odom_callback(self, data):
@@ -49,7 +50,7 @@ class RobotController:
     def pallet_callback(self, msg):
         self.pallet_axis = msg
         distance = self.calculate_distance()
-        if distance > 1000:
+        if distance > 1:
             print("cccccccccc")
 
             # 목표 각도와 현재 각도 간 오차 계산
@@ -81,7 +82,7 @@ class RobotController:
             self.cmdvel_pub.publish(cmd_vel_msg)
             print(distance)
 
-        elif distance <= 1000 and distance > 0:
+        elif distance <= 1 and distance > 0:
             print("STOP")
             cmd_vel_msg = Twist()
             cmd_vel_msg.linear.x = 0.0
@@ -97,7 +98,7 @@ class RobotController:
         # 현재 위치와 목표 위치 간 거리 계산
         dx = self.pallet_axis.x
         dy = self.pallet_axis.y
-        return math.sqrt(dx**2 + dy**2)
+        return math.sqrt(dx**2 + dy**2)*0.001
 
     def calculate_yaw_error(self):
         # 현재 각도와 목표 각도 간 오차 계산
