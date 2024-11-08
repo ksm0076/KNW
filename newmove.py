@@ -82,7 +82,7 @@ class RobotController:
             print(distance)
 
         elif distance <= 2000 and distance > 0:
-            print("aaaaaa")
+            print("STOP")
             cmd_vel_msg = Twist()
             cmd_vel_msg.linear.x = 0.0
             cmd_vel_msg.angular.z = 0.0
