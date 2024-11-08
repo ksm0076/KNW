@@ -81,7 +81,7 @@ class RobotController:
             self.cmdvel_pub.publish(cmd_vel_msg)
             print(distance)
 
-        elif distance <= 2000 and distance > 0:
+        elif distance <= 1000 and distance > 0:
             print("STOP")
             cmd_vel_msg = Twist()
             cmd_vel_msg.linear.x = 0.0
@@ -111,6 +111,7 @@ class RobotController:
             self.pallet_axis.x,
             self.pallet_axis.y
         )
+        desired_yaw -= 1.6
         print("desire : ", desired_yaw, "current : ", current_yaw)
         return current_yaw - desired_yaw
 
