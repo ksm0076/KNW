@@ -110,10 +110,11 @@ class PersonSegmentationNode(Node):
         person_position.z = -y          # 카메라 Y -> ROS -Z
         person_position.w = 1.0         # 회전 정보는 필요 없으므로 기본값으로 설정
 
-        print("Calculated 3D Position in ROS frame:", person_position)
+        
         if self.human:
             self.position_pub.publish(person_position)
-        self.get_logger().info(f"Person position published: x={z:.2f}, y={-x:.2f}, z={-y:.2f}")
+            print("Calculated 3D Position in ROS frame:", person_position)
+            self.get_logger().info(f"Person position published: x={z:.2f}, y={-x:.2f}, z={-y:.2f}")
 
     def imageDepthInfoCallback(self, cameraInfo):
         try:
