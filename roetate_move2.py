@@ -71,6 +71,7 @@ class RobotController:
             self.stop_robot()
 
     def status_callback(self, msg):
+        print("status_callback :", msg)
         if msg.data == "lost":
             current_time = time.time()
             if not self.searching and current_time - self.last_detection_time > 3:
