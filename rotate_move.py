@@ -44,10 +44,10 @@ class RobotController:
     def pallet_callback(self, msg):
         self.pallet_axis = msg
         distance = self.calculate_distance()
+        self.last_detection_time = time.time()  # 마지막 감지 시간 갱신
         if distance > 1:
             print("Following person")
             self.searching = False
-            self.last_detection_time = time.time()  # 마지막 감지 시간 갱신
 
             # PID 제어기를 사용하여 속도 계산
             cmd_vel_msg = Twist()
@@ -72,6 +72,7 @@ class RobotController:
             self.stop_robot()
 
     def status_callback(self, msg):
+        print("status_callback :", msg)
         if msg.data == "lost":
             current_time = time.time()
             if not self.searching and current_time - self.last_detection_time > 3:
@@ -106,6 +107,7 @@ class RobotController:
             self.current_pose.orientation.w
         ])
         desired_yaw = math.atan2(self.pallet_axis.x, self.pallet_axis.y)
+        desired_yaw -= 1.6
         return current_yaw - desired_yaw
 
     def limit_speed(self, speed, max_speed):

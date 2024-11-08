@@ -42,9 +42,8 @@ class PersonSegmentationNode(Node):
 
         if not results.boxes:
             self.get_logger().info('No objects detected')
-            if self.human:  # 사람이 이전에 감지되었으나 이제 감지되지 않을 때
-                self.human = False
-                self.status_pub.publish(String(data="lost"))  # 사람이 사라졌다는 상태를 발행
+            self.human = False
+            self.status_pub.publish(String(data="lost"))  # 사람이 사라졌다는 상태를 발행
             return
         
         self.human = True
