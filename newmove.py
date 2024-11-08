@@ -31,10 +31,10 @@ class RobotController:
         
         self.pallet = 0
 
-        self.kp_linear = 0.5  # 직선 PID 제어기 상수 
+        self.kp_linear = 0.2  # 직선 PID 제어기 상수 
         self.kp_angular = 1  # 각도 PID 제어기 상수
 
-        self.max_linear_speed = 1.0  # 최대 직선 속도 (m/s)
+        self.max_linear_speed = 0.75  # 최대 직선 속도 (m/s)
         self.max_angular_speed = 2.0  # 최대 각도 속도 (rad/s)
         
         self.target_relative_pose = Pose()
