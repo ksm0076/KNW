@@ -35,7 +35,7 @@ class RobotController:
         self.kp_angular = 1  # 각도 PID 제어기 상수
 
         self.max_linear_speed = 0.5  # 최대 직선 속도 (m/s)
-        self.max_angular_speed = 1.0  # 최대 각도 속도 (rad/s)
+        self.max_angular_speed = 2.0  # 최대 각도 속도 (rad/s)
         
         self.target_relative_pose = Pose()
         self.target_relative_pose.position.x = 0.5  # 목표 상대 위치 x 좌표
@@ -81,7 +81,7 @@ class RobotController:
             self.cmdvel_pub.publish(cmd_vel_msg)
             print(distance)
 
-        elif distance <= 2000 and distance > 0:
+        elif distance <= 1000 and distance > 0:
             print("STOP")
             cmd_vel_msg = Twist()
             cmd_vel_msg.linear.x = 0.0
@@ -111,6 +111,7 @@ class RobotController:
             self.pallet_axis.x,
             self.pallet_axis.y
         )
+        desired_yaw -= 1.6
         print("desire : ", desired_yaw, "current : ", current_yaw)
         return current_yaw - desired_yaw
 
