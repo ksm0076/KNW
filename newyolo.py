@@ -30,6 +30,7 @@ class PersonSegmentationNode(Node):
         self.depth_sub = self.create_subscription(Image, '/camera/depth/image_raw', self.depth_callback, 10)
         self.position_pub = self.create_publisher(Quaternion, '/pallet_axis', 10)
         self.sub_info = self.create_subscription(CameraInfo, '/camera/depth/camera_info', self.imageDepthInfoCallback, 1)
+        self.human = False
 
     def image_listener_callback(self, msg):
         print("GOGO")
@@ -40,8 +41,10 @@ class PersonSegmentationNode(Node):
 
         if not results.boxes:
             self.get_logger().info('No objects detected')
+            self.human = False
             return
-
+        
+        self.human = True
         for i in range(len(results)):
             if results.boxes:
                 bbox_info = results.boxes[i]
@@ -108,7 +111,8 @@ class PersonSegmentationNode(Node):
         person_position.w = 1.0         # 회전 정보는 필요 없으므로 기본값으로 설정
 
         print("Calculated 3D Position in ROS frame:", person_position)
-        self.position_pub.publish(person_position)
+        if self.human:
+            self.position_pub.publish(person_position)
         self.get_logger().info(f"Person position published: x={z:.2f}, y={-x:.2f}, z={-y:.2f}")
 
     def imageDepthInfoCallback(self, cameraInfo):
