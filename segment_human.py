@@ -14,7 +14,6 @@ class PersonSegmentationNode(Node):
     def __init__(self, image_topic):
         super().__init__('person_segmentation_node')
         self.img_pub = self.create_publisher(Image, '/yolov8_result', 10)
-        self.status_pub = self.create_publisher(String, '/human_status', 10)
         self.subscription = self.create_subscription(
             Image,
             image_topic,
@@ -30,30 +29,24 @@ class PersonSegmentationNode(Node):
         self.depth_sub = self.create_subscription(Image, '/camera/depth/image_raw', self.depth_callback, 10)
         self.position_pub = self.create_publisher(Quaternion, '/pallet_axis', 10)
         self.sub_info = self.create_subscription(CameraInfo, '/camera/depth/camera_info', self.imageDepthInfoCallback, 1)
-        self.human = False
 
     def image_listener_callback(self, msg):
-        print("GOGO")
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
         results = self.model.predict(source=cv_image, device="cuda:0", classes=[0], verbose=False)
         results = results[0].cpu()
 
         if not results.boxes:
-            self.get_logger().info('No objects detected')
-            self.human = False
-            self.status_pub.publish(String(data="lost"))  # 사람이 사라졌다는 상태를 발행
+            self.get_logger().info('No Human detected')
             return
         
-        self.human = True
-        self.status_pub.publish(String(data="found"))  # 사람이 감지되었음을 발행
         for i in range(len(results)):
             if results.boxes:
                 bbox_info = results.boxes[i]
                 class_name = self.model.names[int(bbox_info.cls)]
                 bbox = bbox_info.xywh[0]
                 self.target_pixel = (int(bbox[0]), int(bbox[1]))
-                self.get_logger().info(f"Person detected at pixel: {self.target_pixel}")
+                self.get_logger().info(f"Human detected at pixel: {self.target_pixel}")
 
                 center_x = float(bbox[0])
                 center_y = float(bbox[1])
@@ -74,6 +67,8 @@ class PersonSegmentationNode(Node):
                        round(center_y + size_x / 2.0))
                 cv2.rectangle(cv_image, pt1, pt2, color, 2)
                 cv2.putText(cv_image, str(class_name), ((pt1[0] + pt2[0]) // 2 - 5, pt1[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, thickness=2)
+            else:
+                self.target_pixel = None
 
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
 
@@ -114,11 +109,10 @@ class PersonSegmentationNode(Node):
         person_position.w = 1.0         # 회전 정보는 필요 없으므로 기본값으로 설정
 
         
-        # publish coordinate
-        if self.human:
-            self.position_pub.publish(person_position)
-            print("Calculated 3D Position in ROS frame:", person_position)
-            self.get_logger().info(f"Person position published: x={z:.2f}, y={-x:.2f}, z={-y:.2f}")
+        # 좌표 publish
+        self.position_pub.publish(person_position)
+        print("Calculated 3D Position in ROS frame:", person_position)
+        self.get_logger().info(f"Person position published: x={z:.2f}, y={-x:.2f}, z={-y:.2f}")
 
     def imageDepthInfoCallback(self, cameraInfo):
         try:
@@ -150,4 +144,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-    print("Hi")

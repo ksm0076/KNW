@@ -6,7 +6,6 @@ from rclpy.node import Node
 from tf_transformations import euler_from_quaternion
 import math
 from geometry_msgs.msg import Quaternion
-from std_msgs.msg import String
 import time
 
 class RobotController:
@@ -21,10 +20,10 @@ class RobotController:
             self.pallet_callback,
             10
         )
-        self.status_sub = self.node.create_subscription(
-            String,
-            '/human_status',
-            self.status_callback,
+        self.odom_sub = self.node.create_subscription(
+            Odometry,
+            'odom',
+            self.odom_callback,
             10
         )
 
@@ -39,7 +38,7 @@ class RobotController:
 
         self.last_detection_time = time.time()
         self.searching = False
-        self.rotation_direction = 1  # 1 for clockwise, -1 for counter-clockwise
+        self.rotation_direction = 1  # 1 for clockwise, -1 for counter clockwise
 
     def pallet_callback(self, msg):
         self.pallet_axis = msg
@@ -69,17 +68,6 @@ class RobotController:
         elif distance <= 1 and distance > 0:
             print("STOP")
             self.stop_robot()
-
-    def status_callback(self, msg):
-        print("status_callback :", msg)
-        if msg.data == "lost":
-            current_time = time.time()
-            if current_time - self.last_detection_time > 3:
-                print("Human lost. Starting to rotate.")
-                self.searching = True
-                self.rotate_to_find_person()
-        elif msg.data == "found":
-            self.searching = False
 
     def rotate_to_find_person(self):
         print("Rotating to find person...")
@@ -118,6 +106,9 @@ class RobotController:
 
     def limit_speed(self, speed, max_speed):
         return min(speed, max_speed)
+    
+    def odom_callback(self, msg):
+        self.current_pose = msg.pose.pose
 
 if __name__ == '__main__':
     try:
