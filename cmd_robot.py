@@ -26,6 +26,8 @@ class RobotController:
             self.odom_callback,
             10
         )
+        
+        self.create_timer(1, self.time_callback)
 
         self.current_pose = Pose()
         self.pallet_axis = Quaternion()
@@ -37,15 +39,19 @@ class RobotController:
         self.max_angular_speed = 2.0
 
         self.last_detection_time = time.time()
-        self.searching = False
+        self.current_time = time.time()
         self.rotation_direction = 1  # 1 for clockwise, -1 for counter clockwise
-
+    
+    def time_callback(self):
+        self.current_time = time.time()
+        if self.current_time - self.last_detection_time > 2:
+            self.rotate_to_find_person()
+    
     def pallet_callback(self, msg):
         self.pallet_axis = msg
         distance = self.calculate_distance()
         self.last_detection_time = time.time()  # Update last detection time when detected
-        self.searching = False  # Stop searching if person is detected
-
+        
         if distance > 1:
             print("Following person")
             cmd_vel_msg = Twist()
@@ -72,14 +78,9 @@ class RobotController:
     def rotate_to_find_person(self):
         print("Rotating to find person...")
         cmd_vel_msg = Twist()
-        cmd_vel_msg.angular.z = 1.0 * self.rotation_direction  # Adjust rotation speed as needed
+        cmd_vel_msg.angular.z = 1.0 * self.rotation_direction  # rotation speed
                 
         self.cmdvel_pub.publish(cmd_vel_msg)
-        time.sleep(0.3) 
-        if self.searching:
-            print("Human not found. Stopping rotation and alerting user.")
-            self.stop_robot()
-            self.node.get_logger().info("Human not found after rotation. Please check.")
 
     def stop_robot(self):
         cmd_vel_msg = Twist()
