@@ -30,7 +30,7 @@ class RobotController:
 
         self.current_pose = Pose()
         self.pallet_axis = Quaternion()
-        
+
         self.kp_linear = 0.4
         self.kp_angular = 2
 
@@ -52,7 +52,7 @@ class RobotController:
 
         if distance > 1.5:
             print("Following person")
-            self.stop_status = False
+            self.stop_status = True
             cmd_vel_msg = Twist()
             yaw_error = self.calculate_yaw_error()
             linear_speed = self.kp_linear * distance
@@ -63,12 +63,12 @@ class RobotController:
 
             cmd_vel_msg.linear.x = linear_speed
             cmd_vel_msg.angular.z = angular_speed
-            
+
             if cmd_vel_msg.angular.z > 0:
                 self.rotation_direction = 1
             elif cmd_vel_msg.angular.z < 0:
                 self.rotation_direction = -1
-            
+
             self.cmdvel_pub.publish(cmd_vel_msg)
         elif distance <= 1.5 and distance > 0:
             if self.stop_status == False:
@@ -94,7 +94,7 @@ class RobotController:
         print("Rotating to find person...")
         cmd_vel_msg = Twist()
         cmd_vel_msg.angular.z = 1.0 * self.rotation_direction  # Adjust rotation speed as needed
-                
+
         self.cmdvel_pub.publish(cmd_vel_msg)
         time.sleep(0.3) 
         if self.searching:
@@ -103,7 +103,6 @@ class RobotController:
             self.node.get_logger().info("Human not found after rotation. Please check.")
 
     def stop_robot(self):
-        self.stop_status = True
         cmd_vel_msg = Twist()
         cmd_vel_msg.linear.x = 0.0
         cmd_vel_msg.angular.z = 0.0
