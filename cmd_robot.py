@@ -8,26 +8,25 @@ import math
 from geometry_msgs.msg import Quaternion
 import time
 
-class RobotController:
+class RobotController(Node):  # Node를 상속받도록 수정
     def __init__(self):
-        rclpy.init()
-        self.node = rclpy.create_node('robot_control_node')
+        super().__init__('robot_control_node')  # Node 초기화
 
-        self.cmdvel_pub = self.node.create_publisher(Twist, 'cmd_vel', 10)
-        self.rs_pallet_axis_sub = self.node.create_subscription(
+        self.cmdvel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.rs_pallet_axis_sub = self.create_subscription(
             Quaternion,
             '/pallet_axis',
             self.pallet_callback,
             10
         )
-        self.odom_sub = self.node.create_subscription(
+        self.odom_sub = self.create_subscription(
             Odometry,
             'odom',
             self.odom_callback,
             10
         )
         
-        self.create_timer(1, self.time_callback)
+        self.create_timer(1, self.time_callback)  # 타이머 생성
 
         self.current_pose = Pose()
         self.pallet_axis = Quaternion()
@@ -113,6 +112,6 @@ class RobotController:
 if __name__ == '__main__':
     try:
         controller = RobotController()
-        rclpy.spin(controller.node)
+        rclpy.spin(controller)
     except KeyboardInterrupt:
         pass
