@@ -102,7 +102,6 @@ class RobotController:
             self.current_pose.orientation.w
         ])
         desired_yaw = math.atan2(self.pallet_axis.x, self.pallet_axis.y)
-        desired_yaw -= 1.6
         return current_yaw - desired_yaw
 
     def limit_speed(self, speed, max_speed):
