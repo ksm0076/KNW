@@ -29,6 +29,9 @@ class DistanceTracker(Node):
         self.start_time = None
         self.end_time = None
         self.speed = None
+        self.running_time = None
+        self.minute = None
+        self.second = None
         self.create_timer(1, self.show_distance)
         
     def odom_callback(self, msg):
@@ -57,6 +60,8 @@ class DistanceTracker(Node):
         self.prev_y = None
         self.total_distance = 0.0
         self.start_time = time.time()
+        self.minute = 0
+        self.second = 0
         print("Distance measurement START!!")
         
     def stop_distance_measurement(self):
@@ -64,11 +69,18 @@ class DistanceTracker(Node):
         self.end_time = time.time()
         print(f"Distance measurement STOP, Total distance : {self.total_distance:.2f} m")
         print(f"Average speed : {self.speed:.2f} Km/h")
+        print(f"Running time : {self.minute}:{self.second}")
 
     def show_distance(self):
         if self.is_measuring_distance:
-            self.get_logger().info(f'Traveled distance: {self.total_distance:.2f} m')
-            self.get_logger().info(f'Average speed: {self.speed:.2f} Km/h')
+            self.get_logger().info(f'Distance: {self.total_distance:.2f} m')
+            self.get_logger().info(f'Average Speed: {self.speed:.2f} Km/h')
+            self.running_time = time.time()-self.start_time
+            
+            self.minute = int(self.running_time // 60)
+            self.second = int(self.running_time % 60)
+            self.get_logger().info(f'Time: {self.minute}:{self.second}')
+            
         
 def main(args=None):
     rclpy.init(args=args)
