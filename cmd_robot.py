@@ -40,10 +40,8 @@ class RobotController:
         self.last_detection_time = time.time()
         self.searching = False
         self.rotation_direction = 1  # 1 for clockwise, -1 for counter-clockwise
-
-        self.last_status = None  # 추가: 마지막 상태를 저장
-        self.stop_status = None
-
+       
+        
     def pallet_callback(self, msg):
         self.pallet_axis = msg
         distance = self.calculate_distance()
@@ -52,7 +50,6 @@ class RobotController:
 
         if distance > 1.5:
             print("Following person")
-            self.stop_status = True
             cmd_vel_msg = Twist()
             yaw_error = self.calculate_yaw_error()
             linear_speed = self.kp_linear * distance
@@ -61,6 +58,7 @@ class RobotController:
             linear_speed = self.limit_speed(linear_speed, self.max_linear_speed)
             angular_speed = self.limit_speed(angular_speed, self.max_angular_speed)
 
+            print(f"Distance: {distance}, speed: {linear_speed}")
             cmd_vel_msg.linear.x = linear_speed
             cmd_vel_msg.angular.z = angular_speed
 
@@ -71,16 +69,11 @@ class RobotController:
 
             self.cmdvel_pub.publish(cmd_vel_msg)
         elif distance <= 1.5 and distance > 0:
-            if self.stop_status == False:
-                print("STOP")
-                self.stop_robot()
+            print("STOP")
+            self.stop_robot()
 
     def status_callback(self, msg):
-        # 상태가 변경되었을 때만 출력
-        if msg.data != self.last_status:
-            print("status_callback :", msg)
-            self.last_status = msg.data  # 현재 상태를 업데이트
-
+        print("status_callback :", msg)
         if msg.data == "lost":
             current_time = time.time()
             if current_time - self.last_detection_time > 3:
