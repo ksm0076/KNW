@@ -49,8 +49,8 @@ class RobotController:
     
     def pallet_callback(self, msg):
         self.pallet_axis = msg
-        distance = self.calculate_distance()
         self.last_detection_time = time.time()  # Update last detection time when detected
+        distance = self.calculate_distance()        
         
         if distance > 1:
             print("Following person")

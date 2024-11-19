@@ -1,7 +1,6 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CameraInfo
-from std_msgs.msg import String
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
@@ -72,7 +71,6 @@ class PersonSegmentationNode(Node):
 
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
 
-    # depth_callback 및 imageDepthInfoCallback 코드는 그대로 유지
     def depth_callback(self, msg):
         """ 깊이 이미지를 통해 대상 픽셀의 깊이 정보 획득 및 3D 상대 좌표 계산 """
         
