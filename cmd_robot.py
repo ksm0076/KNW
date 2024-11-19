@@ -42,6 +42,7 @@ class RobotController:
         self.rotation_direction = 1  # 1 for clockwise, -1 for counter-clockwise
         
         self.last_status = None
+        self.stop_status = None
        
         
     def pallet_callback(self, msg):
@@ -52,6 +53,8 @@ class RobotController:
 
         if distance > 1.5:
             print("Following person")
+            self.stop_status = False
+            
             cmd_vel_msg = Twist()
             yaw_error = self.calculate_yaw_error()
             linear_speed = self.kp_linear * distance
@@ -71,7 +74,8 @@ class RobotController:
 
             self.cmdvel_pub.publish(cmd_vel_msg)
         elif distance <= 1.5 and distance > 0:
-            print("STOP")
+            if self.stop_status == False:
+                print("STOP")
             self.stop_robot()
 
     def status_callback(self, msg):
@@ -102,6 +106,7 @@ class RobotController:
             self.node.get_logger().info("Human not found after rotation. Please check.")
 
     def stop_robot(self):
+        self.stop_status = True
         cmd_vel_msg = Twist()
         cmd_vel_msg.linear.x = 0.0
         cmd_vel_msg.angular.z = 0.0
