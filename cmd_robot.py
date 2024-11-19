@@ -40,6 +40,8 @@ class RobotController:
         self.last_detection_time = time.time()
         self.searching = False
         self.rotation_direction = 1  # 1 for clockwise, -1 for counter-clockwise
+        
+        self.last_status = None
        
         
     def pallet_callback(self, msg):
@@ -73,7 +75,11 @@ class RobotController:
             self.stop_robot()
 
     def status_callback(self, msg):
-        print("status_callback :", msg)
+        # 상태가 변경되었을 때만 출력
+        if msg.data != self.last_status:
+            print("status_callback :", msg)
+            self.last_status = msg.data  # 현재 상태를 업데이트
+            
         if msg.data == "lost":
             current_time = time.time()
             if current_time - self.last_detection_time > 1:
