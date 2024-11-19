@@ -76,7 +76,7 @@ class RobotController:
         print("status_callback :", msg)
         if msg.data == "lost":
             current_time = time.time()
-            if current_time - self.last_detection_time > 3:
+            if current_time - self.last_detection_time > 1:
                 print("Human lost. Starting to rotate.")
                 self.searching = True
                 self.rotate_to_find_person()
