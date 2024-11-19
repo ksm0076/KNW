@@ -111,7 +111,6 @@ class RobotController:
         cmd_vel_msg.linear.x = 0.0
         cmd_vel_msg.angular.z = 0.0
         self.cmdvel_pub.publish(cmd_vel_msg)
-        print("STOP")
 
     def calculate_distance(self):
         dx = self.pallet_axis.x
