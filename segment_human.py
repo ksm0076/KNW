@@ -33,7 +33,7 @@ class PersonSegmentationNode(Node):
         self.human = False
 
     def image_listener_callback(self, msg):
-        print("GOGO")
+        print("Start segment_human")
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
         results = self.model.predict(source=cv_image, device="cuda:0", classes=[0], verbose=False)
@@ -77,7 +77,7 @@ class PersonSegmentationNode(Node):
 
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
 
-    # depth_callback 및 imageDepthInfoCallback 코드는 그대로 유지
+    
     def depth_callback(self, msg):
         """ 깊이 이미지를 통해 대상 픽셀의 깊이 정보 획득 및 3D 상대 좌표 계산 """
         

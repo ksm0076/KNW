@@ -67,19 +67,25 @@ class DistanceTracker(Node):
     def stop_distance_measurement(self):
         self.is_measuring_distance = False
         self.end_time = time.time()
-        print(f"Distance measurement STOP, Total distance : {self.total_distance:.2f} m")
+        print(f"Distance measurement STOP")
+        print(f"Total distance : {self.total_distance:.2f} m")
         print(f"Average speed : {self.speed:.2f} Km/h")
-        print(f"Running time : {self.minute}:{self.second}")
+        print(f"Running time : {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}")
 
     def show_distance(self):
         if self.is_measuring_distance:
-            self.get_logger().info(f'Distance: {self.total_distance:.2f} m')
-            self.get_logger().info(f'Average Speed: {self.speed:.2f} Km/h')
             self.running_time = time.time()-self.start_time
             
             self.minute = int(self.running_time // 60)
             self.second = int(self.running_time % 60)
-            self.get_logger().info(f'Time: {self.minute}:{self.second}')
+            # self.get_logger().info(f'Distance: {self.total_distance:.2f} m')
+            # self.get_logger().info(f'Average Speed: {self.speed:.2f} km/h')
+            # self.get_logger().info(f'Time: {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}')
+                        
+            print(f'Distance: {self.total_distance:.2f} m')
+            print(f'Average Speed: {self.speed:.2f} km/h')
+            print(f'Time: {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}')
+            print("------------------------------")
             
         
 def main(args=None):

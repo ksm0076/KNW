@@ -52,7 +52,7 @@ class RobotController:
         self.searching = False  # Stop searching if person is detected
 
         if distance > 1.5:
-            print("Following person")
+            # print("Following person")
             self.stop_status = False
             
             cmd_vel_msg = Twist()
@@ -63,7 +63,7 @@ class RobotController:
             linear_speed = self.limit_speed(linear_speed, self.max_linear_speed)
             angular_speed = self.limit_speed(angular_speed, self.max_angular_speed)
 
-            print(f"Distance: {distance}, speed: {linear_speed}")
+            # print(f"Distance: {distance}, speed: {linear_speed}")
             cmd_vel_msg.linear.x = linear_speed
             cmd_vel_msg.angular.z = angular_speed
 
@@ -79,10 +79,10 @@ class RobotController:
             self.stop_robot()
 
     def status_callback(self, msg):
-        # 상태가 변경되었을 때만 출력
+        # If status is changed, print status
         if msg.data != self.last_status:
             print("status_callback :", msg)
-            self.last_status = msg.data  # 현재 상태를 업데이트
+            self.last_status = msg.data  # update current status
             
         if msg.data == "lost":
             current_time = time.time()
@@ -96,7 +96,7 @@ class RobotController:
     def rotate_to_find_person(self):
         print("Rotating to find person...")
         cmd_vel_msg = Twist()
-        cmd_vel_msg.angular.z = 1.0 * self.rotation_direction  # Adjust rotation speed as needed
+        cmd_vel_msg.angular.z = 1.0 * self.rotation_direction  # Adjust rotation speed
 
         self.cmdvel_pub.publish(cmd_vel_msg)
         time.sleep(0.3) 
