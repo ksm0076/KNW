@@ -40,7 +40,8 @@ class RobotController:
         self.last_detection_time = time.time()
         self.searching = False
         self.rotation_direction = 1  # 1 for clockwise, -1 for counter-clockwise
-
+       
+        
     def pallet_callback(self, msg):
         self.pallet_axis = msg
         distance = self.calculate_distance()
