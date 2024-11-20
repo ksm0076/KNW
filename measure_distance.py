@@ -59,7 +59,7 @@ class DistanceTracker(Node):
         self.prev_x = None
         self.prev_y = None
         self.total_distance = 0.0
-        self.start_time = time.time()
+        self.start_time = 0
         self.minute = 0
         self.second = 0
         print("Distance measurement START!!")
@@ -74,7 +74,7 @@ class DistanceTracker(Node):
 
     def show_distance(self):
         if self.is_measuring_distance:
-            self.running_time = time.time()-self.start_time
+            self.running_time += 1
             
             self.minute = int(self.running_time // 60)
             self.second = int(self.running_time % 60)
