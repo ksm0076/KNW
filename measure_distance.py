@@ -26,8 +26,6 @@ class DistanceTracker(Node):
         self.prev_y = None
         self.total_distance = 0.0
         self.is_measuring_distance = False
-        self.start_time = None
-        self.end_time = None
         self.speed = None
         self.running_time = None
         self.minute = None
@@ -41,9 +39,9 @@ class DistanceTracker(Node):
             if self.prev_x is not None and self.prev_y is not None:
                 distance = math.sqrt((current_x - self.prev_x)**2 + (current_y - self.prev_y)**2)
                 self.total_distance += distance
-
-                
-            self.speed = (self.total_distance*0.001) / ((time.time()-self.start_time)*(1/3600))
+            
+            if self.running_time >= 1:    
+                self.speed = (self.total_distance*0.001) / (self.running_time*(1/3600))                
             self.prev_x = current_x
             self.prev_y = current_y
         
@@ -59,33 +57,36 @@ class DistanceTracker(Node):
         self.prev_x = None
         self.prev_y = None
         self.total_distance = 0.0
-        self.start_time = 0
+        self.speed = 0
+        self.running_time = 0
         self.minute = 0
         self.second = 0
         print("Distance measurement START!!")
         
     def stop_distance_measurement(self):
         self.is_measuring_distance = False
-        self.end_time = time.time()
-        print(f"Distance measurement STOP")
+        print("---------------------------------------------")
+        print(f"Complete Distance Measurement")
         print(f"Total distance : {self.total_distance:.2f} m")
         print(f"Average speed : {self.speed:.2f} Km/h")
         print(f"Running time : {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}")
+        print("---------------------------------------------")
 
     def show_distance(self):
         if self.is_measuring_distance:
             self.running_time += 1
             
-            self.minute = int(self.running_time // 60)
-            self.second = int(self.running_time % 60)
+            self.minute = self.running_time // 60
+            self.second = self.running_time % 60
             # self.get_logger().info(f'Distance: {self.total_distance:.2f} m')
             # self.get_logger().info(f'Average Speed: {self.speed:.2f} km/h')
             # self.get_logger().info(f'Time: {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}')
-                        
+            print("------------------------------")            
+            print(f'Time: {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}')
             print(f'Distance: {self.total_distance:.2f} m')
             print(f'Average Speed: {self.speed:.2f} km/h')
-            print(f'Time: {str(self.minute).zfill(2)}:{str(self.second).zfill(2)}')
-            print("------------------------------")
+            
+            
             
         
 def main(args=None):
