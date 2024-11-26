@@ -27,7 +27,7 @@ class RobotController:
             self.status_callback,
             10
         )
-        self.subscription = self.create_subscription(
+        self.subscription = self.node.create_subscription(
             Odometry,
             '/odom',  # Odometry 토픽 이름
             self.odom_callback,
