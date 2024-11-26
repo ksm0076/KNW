@@ -27,12 +27,12 @@ class RobotController:
             self.status_callback,
             10
         )
-        self.subscription = self.node.create_subscription(
-            Odometry,
-            '/odom',  # Odometry 토픽 이름
-            self.odom_callback,
-            10
-        )
+        # self.subscription = self.node.create_subscription(
+        #     Odometry,
+        #     '/odom',  # Odometry 토픽 이름
+        #     self.odom_callback,
+        #     10
+        # )
 
         self.current_pose = Pose()
         self.pallet_axis = Quaternion()
@@ -50,8 +50,8 @@ class RobotController:
         self.last_status = None
         self.stop_status = None
        
-    def odom_callback(self, msg):
-        self.current_pose = msg.pose.pose
+    # def odom_callback(self, msg):
+    #     self.current_pose = msg.pose.pose
         
     def pallet_callback(self, msg):
         self.pallet_axis = msg
@@ -133,7 +133,7 @@ class RobotController:
             self.current_pose.orientation.w
         ])
         desired_yaw = math.atan2(self.pallet_axis.x, self.pallet_axis.y)
-        # desired_yaw -= 1.6
+        desired_yaw -= 1.57
         return current_yaw - desired_yaw
 
     def limit_speed(self, speed, max_speed):
