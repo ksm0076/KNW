@@ -34,7 +34,7 @@ class RobotController:
         self.kp_linear = 0.4
         self.kp_angular = 2
 
-        self.max_linear_speed = 2
+        self.max_linear_speed = 2.0
         self.max_angular_speed = 2.0
 
         self.last_detection_time = time.time()
