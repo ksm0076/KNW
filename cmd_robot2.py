@@ -40,7 +40,7 @@ class RobotController:
         self.kp_linear = 0.4
         self.kp_angular = 2
 
-        self.max_linear_speed = 2
+        self.max_linear_speed = 2.0
         self.max_angular_speed = 2.0
 
         self.last_detection_time = time.time()
@@ -94,7 +94,7 @@ class RobotController:
             
         if msg.data == "lost":
             current_time = time.time()
-            if current_time - self.last_detection_time > 1:
+            if current_time - self.last_detection_time > 0.5:
                 print("Human lost. Starting to rotate.")
                 self.searching = True
                 self.rotate_to_find_person()
