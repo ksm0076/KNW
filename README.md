@@ -4,7 +4,6 @@
 # 주제 : 모바일 로봇을 이용한 사람 추종 기술 개발
 ROS를 기반으로한 로봇이 사람을 따라다니며 보조한다.
 
-
 ## 팀 : 김나우의 로봇추종
 |이름|학과|학번||
 |:-:|:-:|:-:|:-:|
@@ -12,20 +11,30 @@ ROS를 기반으로한 로봇이 사람을 따라다니며 보조한다.
 |김성민|컴퓨터공학부|201812048|팀원|
 |나영범|컴퓨터공학부|201812078|팀원|
 
-개발기간 : 2024. 9. 26 ~ 2024. 11. 25
+---
+
+**주제 선정 배경** : 노동력을 모바일 로봇으로 대체함으로써 생산성, 효율성, 편의성 향상
+
+### 프로젝트 목표
+* 로봇이 사람을 인식
+* 로봇이 인식한 사람의 움직임을 따라 추종
+---
+
+개발기간 : 2024. 9. 26 ~ 2024. 11. 30
 |기간|내용|
 |:-:|:-:|
 |**9. 26 ~ 10. 10**|ROS2 기초 학습|
 |**10. 11 ~ 10. 28**|로봇 구동, 객체 인식|
 |**10. 29 ~ 11. 11**|사람 추종 알고리즘 개발|
 |**11. 12 ~ 11. 25**|러닝 메이트 기능 추가|
+|**11. 26 ~ 11. 30**|실사용 테스트, 디버깅 및 튜닝|
 
 ---
 # 개발환경
 * 사용 로봇 기종 : [LIMO Pro (WeGo 로보틱스)](https://wego-robotics.com/wego/wego01.php)
-* Ubuntu : 22.04
-* ROS2 humble
-* Python 3.11.9
+* 개발 언어 : Python 3.11.9
+* 운영체제 : Ubuntu 22.04
+* ROS2 Humble
 * Pytorch : 딥러닝 프레임워크
 * ultralytics (YOLOv8) : 객체 탐지 라이브러리
 * Torchvision : 이미지 처리
@@ -65,50 +74,18 @@ echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 ros2 launch limo_base limo_base.launch.py
 ros2 launch orbbec_camera dabai.launch.py
 python3 segment_human.py
-python3 cmd_robot.py
-python3 measure_distance.py
-python3 measure_command.py
+python3 Running_Mate.py
 ```
-- measure_command.py 실행한 터미널에서 start/stop 명령
-- measure_distance.py 실행한 터미널에서 측정 결과 확인
+![image](https://github.com/user-attachments/assets/c58e4a99-b743-441d-9fd5-05c94c928e89)
 
-<details>
-<summary>tmux 이용해서 한 번에 실행하기</summary>
-  
-```
-sudo apt install tmux
-vi run_all_scripts.sh
-```
-```
-#!/bin/bash
+Start/Stop Move : 사람 추종 시작/정지
 
-# Create a new tmux session named "python_scripts" and run the first command
-tmux new-session -d -s python_scripts 'python3 segment_human.py'
-
-# Split the window and run the second command
-tmux split-window -v 'python3 cmd_robot.py'
-tmux select-layout tiled
-
-# Split the window for the third command
-tmux split-window -v 'python3 measure_distance.py'
-
-# Split the window for the fourth command
-tmux split-window -v 'python3 measure_command.py'
-
-# Attach to the tmux session to monitor the output
-tmux attach-session -t python_scripts
-```
-```
-chmod +x run_all_scripts.sh
-./run_all_scripts.sh
-```
-
-</details>
+Start/Stop Measure : 측정 시작/정지
 
 ---
-## 전체적인 흐름
+## 사람 추종 알고리즘의 전체적인 흐름
 
-**1. yolo로 사람 객체인식, 토픽으로 이미지를 발행**
+**1. yolo를 통한 사람 객체인식, 토픽으로 이미지를 발행**
 
 **2. 객체 인식된 이미지에서 바운딩 박스의 좌표를 3D 좌표로 변환**
 
@@ -189,7 +166,3 @@ chmod +x run_all_scripts.sh
 **def stop_distance_measurement(self)**
 
 0. 측정을 마침
-
-## 4. measure_command.py
-
-0. start/stop을 입력받아 measure_distance.py 에게 전달할 수 있게 함
