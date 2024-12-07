@@ -13,11 +13,15 @@ ROS를 기반으로한 로봇이 사람을 따라다니며 보조한다.
 
 ---
 
-**주제 선정 배경** : 노동력을 모바일 로봇으로 대체함으로써 생산성, 효율성, 편의성 향상
+### 주제 선정 배경 : 노동력을 모바일 로봇으로 대체함으로써 생산성, 효율성, 편의성 향상
 
-### 프로젝트 목표
-* 로봇이 사람을 인식
+### 프로젝트 목표 : 로봇의 사람 추종
+
+### 주요 기능
+* 로봇이 객체를 인식
 * 로봇이 인식한 사람의 움직임을 따라 추종
+* 사람 추종 중 대상이 이탈 시 제자리에서 회전하며 사람 탐색
+* Running Mate 기능 : 주행 시간, 주행 거리, 현재 속도, 평균 속도 표시
 ---
 
 개발기간 : 2024. 9. 26 ~ 2024. 11. 30
@@ -85,12 +89,13 @@ Start/Stop Measure : 측정 시작/정지
 ---
 ## 사람 추종 알고리즘의 전체적인 흐름
 
-**1. yolo를 통한 사람 객체인식, 토픽으로 이미지를 발행**
+**1. yolo를 통한 사람 객체인식, 객체인식한 이미지를 토픽으로 발행(실시간 확인)**
 
 **2. 객체 인식된 이미지에서 바운딩 박스의 좌표를 3D 좌표로 변환**
 
 **3. 3D 좌표를 이용해 각도와 거리 계산, 로봇 이동 토픽 발행**
 
+![image](https://github.com/user-attachments/assets/361eaa70-ea7b-4e47-9b21-034eaa430ac7)
 ---
 
 ## 1. segment_human.py
@@ -113,7 +118,7 @@ Start/Stop Measure : 측정 시작/정지
 
 **def imageDepthInfoCallback(self, cameraInfo)**
 
-0. 3D 좌표로 변환시키기 위해 필요한 카메라 정보 저장
+* 3D 좌표로 변환시키기 위해 필요한 카메라 정보 저장
 
 ## 2. cmd_robot.py
 - segment_human.py 에서 받은 3D 좌표 -> (x,y) 값 이용해서 각도, 거리 계산  
@@ -136,33 +141,33 @@ Start/Stop Measure : 측정 시작/정지
 
 **def rotate_to_find_person(self)**
 
-0. 마지막으로 검출한 바운딩 박스의 좌표에 따라 방향을 선택해서 회전
+* 마지막으로 검출한 바운딩 박스의 좌표에 따라 방향을 선택해서 회전
 
 **def stop_robot(self)**
 
-0. 로봇 정지 cmd_vel 토픽 발행
+* 로봇 정지 cmd_vel 토픽 발행
 
 **def calculate_distance(self)**
 
-0. 피타고라스 정리를 이용해 거리 계산
+* 피타고라스 정리를 이용해 거리 계산
 
 **def calculate_yaw_error(self)**
 
-0. math.atan2 를 이용해서 각도 계산
+* math.atan2 를 이용해서 각도 계산
 
 ## 3. measure_distance.py
 **def odom_callback(self, msg)**
 
-0. 현재 좌표, 이전 좌표 피타고라스 정리를 이용해 이동한 거리를 구하고 합산
+* 현재 좌표, 이전 좌표 피타고라스 정리를 이용해 이동한 거리를 구하고 합산
    
 **def command_callback(self, msg)**
 
-0. 거리 측정의 시작과 끝 상태에 대한 토픽을 구독함
+* 거리 측정의 시작과 끝 상태에 대한 토픽을 구독함
 
 **def start_distance_measurement(self)**
 
-0. 위치, 이동거리, 시간 초기화
+* 위치, 이동거리, 시간 초기화
    
 **def stop_distance_measurement(self)**
 
-0. 측정을 마침
+* 측정을 마침
