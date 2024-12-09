@@ -62,7 +62,7 @@ git clone -b humble-dev https://github.com/agilexrobotics/limo_ros2.git
 git clone https://github.com/orbbec/OrbbecSDK_ROS2.git
 
 # 사람 추종, 달린 거리 측정
-git clone https://github.com/ksm0076/KNW.git
+git clone https://github.com/ksm0076/KNW-follower-robot.git
 
 cd ..
 colcon build
@@ -154,20 +154,3 @@ Start/Stop Measure : 측정 시작/정지
 **def calculate_yaw_error(self)**
 
 * math.atan2 를 이용해서 각도 계산
-
-## 3. measure_distance.py
-**def odom_callback(self, msg)**
-
-* 현재 좌표, 이전 좌표 피타고라스 정리를 이용해 이동한 거리를 구하고 합산
-   
-**def command_callback(self, msg)**
-
-* 거리 측정의 시작과 끝 상태에 대한 토픽을 구독함
-
-**def start_distance_measurement(self)**
-
-* 위치, 이동거리, 시간 초기화
-   
-**def stop_distance_measurement(self)**
-
-* 측정을 마침
