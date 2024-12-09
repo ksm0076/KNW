@@ -31,10 +31,10 @@ class RobotController:
         self.current_pose = Pose()
         self.pallet_axis = Quaternion()
 
-        self.kp_linear = 0.4
+        self.kp_linear = 0.3
         self.kp_angular = 2
 
-        self.max_linear_speed = 2.0
+        self.max_linear_speed = 1.5
         self.max_angular_speed = 2.0
 
         self.last_detection_time = time.time()
@@ -57,11 +57,17 @@ class RobotController:
             
             cmd_vel_msg = Twist()
             yaw_error = self.calculate_yaw_error()
-            linear_speed = self.kp_linear * distance
             angular_speed = self.kp_angular * yaw_error
-
-            linear_speed = self.limit_speed(linear_speed, self.max_linear_speed)
             angular_speed = self.limit_speed(angular_speed, self.max_angular_speed)
+            
+            # 3m~ : 1m/s (max speed)
+            # ~2m : 0.2m/s
+            if distance < 2.0:
+                linear_speed = 0.2
+            else:
+                linear_speed = self.kp_linear * distance
+                linear_speed = self.limit_speed(linear_speed, self.max_linear_speed)
+            
 
             # print(f"Distance: {distance}, speed: {linear_speed}")
             cmd_vel_msg.linear.x = linear_speed

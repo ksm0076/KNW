@@ -40,40 +40,54 @@ class PersonSegmentationNode(Node):
         results = results[0].cpu()
 
         if not results.boxes:
-            self.get_logger().info('No objects detected')
+            self.get_logger().info('No Human detected')
+            self.human = False
+            self.img_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
+            self.status_pub.publish(String(data="lost"))  # 사람이 사라졌다는 상태를 발행
+            return
+        
+        # 신뢰도 0.6 이상인 바운딩 박스 필터링 및 크기 순으로 정렬
+        filtered_sorted_boxes = sorted(
+            [box for box in results.boxes if box.conf[0].item() > 0.6],  # 신뢰도 필터링
+            key=lambda box: (box.xywh[0][2] * box.xywh[0][3]),  # 크기 정렬 (너비 * 높이)
+            reverse=True  # 크기가 큰 순서대로 정렬
+        )
+        if not filtered_sorted_boxes:
+            self.get_logger().info('No objects meet confidence threshold')
             self.human = False
             self.status_pub.publish(String(data="lost"))  # 사람이 사라졌다는 상태를 발행
             return
         
         self.human = True
         self.status_pub.publish(String(data="found"))  # 사람이 감지되었음을 발행
-        for i in range(len(results)):
-            if results.boxes:
-                bbox_info = results.boxes[i]
-                class_name = self.model.names[int(bbox_info.cls)]
-                bbox = bbox_info.xywh[0]
-                self.target_pixel = (int(bbox[0]), int(bbox[1]))
-                self.get_logger().info(f"Person detected at pixel: {self.target_pixel}")
+        
+        bbox_info = filtered_sorted_boxes[0]
+                
+        class_name = self.model.names[int(bbox_info.cls)]
+        bbox = bbox_info.xywh[0]
+        self.target_pixel = (int(bbox[0]), int(bbox[1]))
+        self.get_logger().info(f"Person detected at pixel: {self.target_pixel}, conf: {bbox_info.conf.numpy()}")
 
-                center_x = float(bbox[0])
-                center_y = float(bbox[1])
-                size_x = float(bbox[2])
-                size_y = float(bbox[3])
+        center_x = float(bbox[0])
+        center_y = float(bbox[1])
+        size_x = float(bbox[2])
+        size_y = float(bbox[3])
 
-                if class_name not in self._class_to_color:
-                    r = random.randint(0, 255)
-                    g = random.randint(0, 255)
-                    b = random.randint(0, 255)
-                    self._class_to_color[class_name] = (r, g, b)
+        if class_name not in self._class_to_color:
+            r = random.randint(0, 255)
+            g = random.randint(0, 255)
+            b = random.randint(0, 255)
+            self._class_to_color[class_name] = (r, g, b)
 
-                color = self._class_to_color[class_name]
+        color = self._class_to_color[class_name]
 
-                pt1 = (round(center_x - size_x / 2.0),
-                       round(center_y - size_y / 2.0))
-                pt2 = (round(center_x + size_x / 2.0),
-                       round(center_y + size_x / 2.0))
-                cv2.rectangle(cv_image, pt1, pt2, color, 2)
-                cv2.putText(cv_image, str(class_name), ((pt1[0] + pt2[0]) // 2 - 5, pt1[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, thickness=2)
+        pt1 = (round(center_x - size_x / 2.0),
+                round(center_y - size_y / 2.0))
+        pt2 = (round(center_x + size_x / 2.0),
+                round(center_y + size_x / 2.0))
+        cv2.rectangle(cv_image, pt1, pt2, color, 2)
+        # cv2.putText(cv_image, str(class_name), ((pt1[0] + pt2[0]) // 2 - 5, pt1[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, thickness=2)
+        cv2.putText(cv_image, str(class_name), (int(center_x), int(center_y)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, thickness=2)
 
         self.img_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
 
