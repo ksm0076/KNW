@@ -119,7 +119,7 @@ class RobotControlUI(QMainWindow):
     def run_move(self):
         try:
             self.move_process = subprocess.Popen(
-                ["python3", "move_limit_speed.py"],
+                ["python3", "cmd_robot.py"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
