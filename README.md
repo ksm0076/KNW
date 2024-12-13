@@ -78,7 +78,7 @@ echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 ros2 launch limo_base limo_base.launch.py
 ros2 launch orbbec_camera dabai.launch.py
 python3 segment_human.py
-python3 Running_Mate.py
+python3 Running_Mate_GUI.py
 ```
 ![image](https://github.com/user-attachments/assets/c58e4a99-b743-441d-9fd5-05c94c928e89)
 
